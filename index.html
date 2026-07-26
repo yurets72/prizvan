@@ -249,7 +249,7 @@ function renderTicks(){
 function renderIntro(){
   renderTicks();
   var h = '<h1>6 сценариев</h1>';
-  h += '<p class="desc">Незнакомые люди, которым нужна помощь. Отвечай не задумываясь — важен первый инстинкт, а не «правильный» вариант.</p>';
+  h += '<p class="desc">Люди вокруг нас, которым нужна помощь. Отвечай не задумываясь — важен первый инстинкт, а не «правильный» вариант.</p>';
   h += '<div class="actions"><button type="button" class="btn" id="start">Начать</button></div>';
   document.getElementById('body').innerHTML = h;
   document.getElementById('start').addEventListener('click', function(){ transitionTo(renderQ); });
