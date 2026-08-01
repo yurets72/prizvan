@@ -192,15 +192,15 @@
 </div>
 <script>
 var ICON = {
-  teach:'<path d="M4 19V6a2 2 0 0 1 2-2h5v16H6a2 2 0 0 0-2 2"/><path d="M20 19V6a2 2 0 0 0-2-2h-5v16h5a2 2 0 0 1 2 2"/>',
-  care:'<path d="M12 20s-7-4.35-9.4-8.4C.9 8 2.1 4.6 5.5 4.1c2-.3 3.7.8 4.5 2.2C10.8 4.9 12.5 3.8 14.5 4.1c3.4.5 4.6 3.9 3 7.5C19 15.65 12 20 12 20z"/>',
-  protect:'<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/>',
-  heal:'<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',
-  create:'<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.5.4.8 1 .8 1.6h5.4c0-.6.3-1.2.8-1.6A6 6 0 0 0 12 3z"/>',
-  guide:'<circle cx="12" cy="12" r="9"/><path d="M15 9l-2 5-5 2 2-5z"/>'
+  teach:'<line x1="12" y1="3" x2="12" y2="21"/><line x1="6" y1="9" x2="18" y2="9"/><line x1="6" y1="15" x2="18" y2="15"/>',
+  care:'<line x1="12" y1="3" x2="12" y2="21"/><path d="M12 7L17 12L12 17L7 12Z"/>',
+  protect:'<path d="M7 4H17V11Q17 17 12 20Q7 17 7 11Z"/><line x1="12" y1="4" x2="12" y2="19"/>',
+  heal:'<line x1="12" y1="3" x2="12" y2="21"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="12" cy="12" r="8.5"/>',
+  create:'<line x1="12" y1="9" x2="12" y2="21"/><line x1="12" y1="9" x2="7" y2="4"/><line x1="12" y1="9" x2="10" y2="3"/><line x1="12" y1="9" x2="14" y2="3"/><line x1="12" y1="9" x2="17" y2="4"/>',
+  guide:'<line x1="12" y1="3" x2="12" y2="21"/><line x1="12" y1="3" x2="7" y2="9"/><line x1="12" y1="3" x2="17" y2="9"/>'
 };
 function svg(key, size){
-  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:'+size+'px;height:'+size+'px">'+ICON[key]+'</svg>';
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:'+size+'px;height:'+size+'px">'+ICON[key]+'</svg>';
 }
 var AR = {
   teach:{label:'Учитель', desc:'Тебе важно передать знание так, чтобы человек сам разобрался дальше.', dir:'менторство, преподавание, обучающий контент'},
