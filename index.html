@@ -122,6 +122,7 @@
   }
   .stamp.a{border:2px solid var(--accent);color:var(--accent);transform:rotate(-6deg);margin-right:-14px;z-index:2}
   .stamp.b{border:2px solid var(--gold);color:var(--gold);transform:rotate(6deg);z-index:1}
+  .badge.rule{border-color:var(--gold);color:var(--gold)}
   h1{
     font-family:'Fraunces', serif;
     font-weight:600;
@@ -197,7 +198,8 @@ var ICON = {
   protect:'<path d="M7 4H17V11Q17 17 12 20Q7 17 7 11Z"/><line x1="12" y1="4" x2="12" y2="19"/>',
   heal:'<line x1="12" y1="3" x2="12" y2="21"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="12" cy="12" r="8.5"/>',
   create:'<line x1="12" y1="9" x2="12" y2="21"/><line x1="12" y1="9" x2="7" y2="4"/><line x1="12" y1="9" x2="10" y2="3"/><line x1="12" y1="9" x2="14" y2="3"/><line x1="12" y1="9" x2="17" y2="4"/>',
-  guide:'<line x1="12" y1="3" x2="12" y2="21"/><line x1="12" y1="3" x2="7" y2="9"/><line x1="12" y1="3" x2="17" y2="9"/>'
+  guide:'<line x1="12" y1="3" x2="12" y2="21"/><line x1="12" y1="3" x2="7" y2="9"/><line x1="12" y1="3" x2="17" y2="9"/>',
+  rule:'<path d="M5 8L7 3L9.5 6.5L12 2L14.5 6.5L17 3L19 8Z"/><line x1="12" y1="8" x2="12" y2="21"/>'
 };
 function svg(key, size){
   return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:'+size+'px;height:'+size+'px">'+ICON[key]+'</svg>';
@@ -228,6 +230,7 @@ var COMBO = {
   'create|guide':{label:'Архитектор', desc:'Ты не просто придумываешь новое — выстраиваешь для этого чёткую структуру и путь.', dir:'продуктовый дизайн, архитектура, стратегическое планирование, стартапы'}
 };
 function comboKey(a, b){ return [a, b].sort().join('|'); }
+var RULER = {label:'Правитель', desc:'Ты не выбираешь одну роль — ты держишь пространство, в котором могут появиться все остальные шесть.', dir:'управление, основание институтов и систем, там где нужны все роли сразу'};
 var Q = [
   {t:'Новый человек в компании явно теряется и не понимает, как тут всё устроено. Твой первый порыв?', o:[['teach','Сесть рядом и на пальцах объяснить, как тут всё работает'],['care','Спросить, как он, и просто побыть рядом'],['guide','Взять его под крыло и провести чёткий маршрут — с чего начать'],['create','Сделать ему простую шпаргалку, чтобы освоился быстрее'],['protect','Поговорить с его руководителем — попросить дать ему больше времени'],['heal','Заметить, что он на нервах, и помочь выдохнуть']]},
   {t:'На остановке к тебе подходит растерянный турист с картой. Что сделаешь?', o:[['guide','Составишь ему короткий план — что посмотреть и в каком порядке'],['teach','Подробно объяснишь дорогу, чтобы он сам смог сориентироваться дальше'],['care','Проводишь его до места лично, заодно поговоришь'],['protect','Предупредишь, в какие районы лучше не соваться вечером'],['create','Нарисуешь на салфетке понятную схему маршрута'],['heal','Заметишь, что он в стрессе от города, и просто успокоишь']]},
@@ -300,11 +303,14 @@ function renderResult(){
   renderTicks();
   var order = Object.keys(scores).sort(function(a,b){ return scores[b]-scores[a]; });
   var top = order[0], second = order[1];
-  var isCombo = (scores[top] - scores[second]) <= 1 && scores[second] > 0;
-  var res = isCombo ? COMBO[comboKey(top, second)] : AR[top];
-  var h = isCombo
-    ? '<div class="badge combo"><div class="stamp a">'+svg(top,22)+'</div><div class="stamp b">'+svg(second,22)+'</div></div>'
-    : '<div class="badge">'+svg(top,30)+'</div>';
+  var isRuler = scores[top] === 1;
+  var isCombo = !isRuler && (scores[top] - scores[second]) <= 1 && scores[second] > 0;
+  var res = isRuler ? RULER : (isCombo ? COMBO[comboKey(top, second)] : AR[top]);
+  var h = isRuler
+    ? '<div class="badge rule">'+svg('rule',30)+'</div>'
+    : (isCombo
+      ? '<div class="badge combo"><div class="stamp a">'+svg(top,22)+'</div><div class="stamp b">'+svg(second,22)+'</div></div>'
+      : '<div class="badge">'+svg(top,30)+'</div>');
   h += '<h1>'+res.label+'</h1>';
   h += '<p class="desc">'+res.desc+'</p>';
   h += '<p class="dir">куда это ведёт — '+res.dir+'</p>';
@@ -316,7 +322,7 @@ function renderResult(){
   h += '<div class="bars">';
   order.forEach(function(k){
     var pct = Math.round(scores[k] / Q.length * 100);
-    var isLead = k===top || (isCombo && k===second);
+    var isLead = !isRuler && (k===top || (isCombo && k===second));
     h += '<div><div class="barrow-top"><span class="lbl">'+svg(k,15)+AR[k].label+'</span><span class="score">'+scores[k]+'/'+Q.length+'</span></div><div class="track"><div class="fill'+(isLead?' top':'')+'" style="width:'+pct+'%"></div></div></div>';
   });
   h += '</div>';
