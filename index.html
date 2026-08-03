@@ -353,5 +353,154 @@ function renderResult(){
 
 renderIntro();
 </script>
+<!-- ===== МОДУЛЬ «ЛИНИЯ РОДА»: вставить перед </body> ===== -->
+<style>
+  .famgroup{margin:1.1rem 0 .4rem}
+  .glabel{font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;opacity:.75;margin-bottom:.45rem}
+  .famcheck{display:flex;align-items:center;gap:.5rem;margin:1rem 0 .2rem;font-size:.9rem;opacity:.9}
+  .lineage{border-left:3px solid #b46a2a;padding:.6rem .9rem;margin:1rem 0;background:rgba(180,106,42,.06)}
+  .lineage p{margin:.4rem 0}
+  .teaser{font-style:italic;opacity:.85;margin:1.2rem 0 .6rem}
+  .leadinp{width:100%;box-sizing:border-box;margin:.35rem 0;padding:.6rem .7rem;border:1px solid rgba(0,0,0,.25);border-radius:8px;background:rgba(255,255,255,.6);font:inherit}
+  .passdate{font-size:.8rem;opacity:.6;margin-bottom:1rem}
+  @media print{
+    .noprint,#ticks,.backlink{display:none !important}
+    body{background:#fff !important}
+    .card{box-shadow:none !important;border:none !important}
+  }
+</style>
+<script>
+var LEAD_CONTACT = 'trulov@bk.ru';
+
+var PHR_M = { teach:'Объяснял, учил, как всё устроено', care:'Грел, собирал всех вокруг, заботился', protect:'Заступался за своих, защищал', heal:'Чинил, лечил, восстанавливал', create:'Придумывал, мастерил, изобретал', guide:'Планировал, вёл, организовывал' };
+var PHR_F = { teach:'Объясняла, учила, как всё устроено', care:'Грела, собирала всех вокруг, заботилась', protect:'Заступалась за своих, защищала', heal:'Чинила, лечила, восстанавливала', create:'Придумывала, мастерила, изобретала', guide:'Планировала, вела, организовывала' };
+var LINE_TEXT = { teach:'привычка объяснять так, чтобы человек разобрался сам', care:'умение быть рядом и греть без просьб', protect:'привычка вставать между своим и бедой', heal:'умение видеть, что болит, и идти чинить', create:'привычка придумывать то, чего раньше не было', guide:'умение превращать хаос в маршрут' };
+var KEYS = ['teach','care','protect','heal','create','guide'];
+var fam = { dad: [], mom: [] };
+var savedStory = '';
+
+function famToggle(p, k) {
+  var a = fam[p], i = a.indexOf(k);
+  if (i >= 0) a.splice(i, 1); else if (a.length < 2) a.push(k);
+}
+
+function renderFamily() {
+  renderTicks();
+  var h = '<button type="button" class="backlink noprint" id="fback">← к результату</button>';
+  h += '<h1>Линия рода</h1>';
+  h += '<p class="desc">Не думай долго — отметь, что помнишь (до двух на каждого).</p>';
+  ['dad','mom'].forEach(function (p) {
+    h += '<div class="famgroup"><div class="glabel">' + (p === 'dad' ? 'Папа' : 'Мама') + '</div>';
+    KEYS.forEach(function (k) {
+      var on = fam[p].indexOf(k) >= 0;
+      h += '<button type="button" class="opt" data-p="' + p + '" data-k="' + k + '"' + (on ? ' style="outline:2px solid currentColor"' : '') + '>' + (p === 'dad' ? PHR_M[k] : PHR_F[k]) + '</button>';
+    });
+    h += '</div>';
+  });
+  h += '<label class="famcheck noprint"><input type="checkbox" id="unk"> Не помню / не знаю</label>';
+  h += '<div class="actions noprint"><button type="button" class="btn" id="famgo" ' + (fam.dad.length && fam.mom.length ? '' : 'disabled') + '>Собрать Паспорт</button></div>';
+  document.getElementById('body').innerHTML = h;
+  document.getElementById('fback').addEventListener('click', function () { transitionTo(renderResult); });
+  document.getElementById('unk').addEventListener('change', function () { if (this.checked) transitionTo(renderLead); });
+  document.querySelectorAll('.famgroup .opt').forEach(function (b) {
+    b.addEventListener('click', function () { famToggle(b.getAttribute('data-p'), b.getAttribute('data-k')); renderFamily(); });
+  });
+  document.getElementById('famgo').addEventListener('click', function () { transitionTo(renderPassport); });
+}
+
+function renderLead() {
+  renderTicks();
+  var h = '<h1>DeepSearch рода</h1>';
+  h += '<p class="desc">Найдём то, что не сохранила память: открытые архивы, военные и метрические книги, переписи. Без ДНК-тестов — только документы и истории.</p>';
+  h += '<p class="desc">Оставь контакт — напишем тебе первому, когда сервис откроется.</p>';
+  h += '<input class="leadinp" id="lname" placeholder="Имя">';
+  h += '<input class="leadinp" id="lcontact" placeholder="Почта или телефон">';
+  h += '<label class="famcheck"><input type="checkbox" id="lconsent"> Согласен на обработку персональных данных</label>';
+  h += '<div class="actions"><button type="button" class="btn" id="lsend">Отправить заявку</button></div>';
+  h += '<button type="button" class="backlink noprint" id="lback">← назад</button>';
+  document.getElementById('body').innerHTML = h;
+  document.getElementById('lback').addEventListener('click', function () { transitionTo(renderFamily); });
+  document.getElementById('lsend').addEventListener('click', function () {
+    var c = document.getElementById('lcontact').value.trim();
+    var ok = document.getElementById('lconsent').checked;
+    if (!c || !ok) { alert('Нужны контакт и согласие на обработку данных.'); return; }
+    var body = 'Заявка DeepSearch рода\nИмя: ' + document.getElementById('lname').value.trim() + '\nКонтакт: ' + c;
+    location.href = 'mailto:' + LEAD_CONTACT + '?subject=' + encodeURIComponent('DeepSearch рода') + '&body=' + encodeURIComponent(body);
+  });
+}
+
+function renderPassport() {
+  renderTicks();
+  var order = Object.keys(scores).sort(function (a, b) { return scores[b] - scores[a]; });
+  var top = order[0], second = order[1];
+  var isRuler = scores[top] === 1;
+  var isCombo = !isRuler && (scores[top] - scores[second]) <= 1 && scores[second] > 0;
+  var res = isRuler ? RULER : (isCombo ? COMBO[comboKey(top, second)] : AR[top]);
+  var userKeys = isRuler ? [] : (isCombo ? [top, second] : [top]);
+
+  var h = '<div class="eyebrow">Паспорт призвания</div>';
+  h += '<div class="passdate">' + new Date().toLocaleDateString('ru-RU') + '</div>';
+  h += isRuler ? '<div class="badge rule">' + svg('rule', 30) + '</div>'
+    : (isCombo ? '<div class="badge combo"><div class="stamp a">' + svg(top, 22) + '</div><div class="stamp b">' + svg(second, 22) + '</div></div>'
+    : '<div class="badge">' + svg(top, 30) + '</div>');
+  h += '<h1>' + res.label + '</h1>';
+  h += '<p class="desc">' + res.desc + '</p>';
+  h += '<p class="dir">куда это ведёт — ' + res.dir + '</p>';
+
+  var dadL = fam.dad.map(function (k) { return AR[k].label; }).join(' + ');
+  var momL = fam.mom.map(function (k) { return AR[k].label; }).join(' + ');
+  var dadP = fam.dad.map(function (k) { return LINE_TEXT[k]; }).join(' и ');
+  var momP = fam.mom.map(function (k) { return LINE_TEXT[k]; }).join(' и ');
+
+  h += '<div class="lineage"><p class="qlabel">Линия рода</p>';
+  h += '<p>Линия папы — ' + dadL + '. Линия мамы — ' + momL + '.</p>';
+  if (isRuler) {
+    h += '<p>Ты держишь пространство для всех шести линий. В твоём роде это читается так: ' + dadP + ' и ' + momP + ' — они не конкурировали, они дали друг другу место. Именно из таких домов получаются люди, которые строят пространства для других.</p>';
+  } else {
+    ['dad','mom'].forEach(function (p) {
+      fam[p].forEach(function (k) {
+        if (userKeys.indexOf(k) >= 0) h += '<p>Линия «' + AR[k].label + '» передана напрямую: ' + (p === 'dad' ? 'папа' : 'мама') + ' тоже ' + AR[k].label + ' — ' + LINE_TEXT[k] + ' у тебя в крови.</p>';
+      });
+    });
+    h += '<p>Твой ' + res.label + ' — синтез двух линий: от папы — ' + dadP + ', от мамы — ' + momP + '.</p>';
+  }
+  h += '</div>';
+
+  if (savedStory) { h += '<p class="qlabel">Мой опыт</p><p class="desc">' + savedStory + '</p>'; }
+
+  h += '<div class="bars">';
+  order.forEach(function (k) {
+    var pct = Math.round(scores[k] / Q.length * 100);
+    h += '<div><div class="barrow-top"><span class="lbl">' + svg(k, 15) + AR[k].label + '</span><span class="score">' + scores[k] + '/' + Q.length + '</span></div><div class="track"><div class="fill" style="width:' + pct + '%"></div></div></div>';
+  });
+  h += '</div>';
+
+  h += '<p class="teaser">Твой архетип ясен. А что стоит за твоей фамилией — откуда она и какие истории хранит? Об этом расскажет DeepSearch рода.</p>';
+  h += '<div class="actions noprint"><button type="button" class="btn" id="teaz">DeepSearch рода</button></div>';
+  h += '<div class="actions noprint"><button type="button" class="btn" id="ppdf">Сохранить в PDF</button></div>';
+  h += '<button type="button" class="backlink noprint" id="pback">← назад</button>';
+  document.getElementById('body').innerHTML = h;
+  document.getElementById('teaz').addEventListener('click', function () { transitionTo(renderLead); });
+  document.getElementById('ppdf').addEventListener('click', function () { window.print(); });
+  document.getElementById('pback').addEventListener('click', function () { transitionTo(renderResult); });
+}
+
+// мягкий крючок: добавляем CTA на экран результата, не трогая твой код
+var _rr = renderResult;
+renderResult = function () {
+  _rr();
+  var cta = document.createElement('div');
+  cta.className = 'actions noprint';
+  cta.style.marginTop = '1.2rem';
+  cta.innerHTML = '<p class="desc" style="margin-bottom:.6rem">Хочешь узнать о себе чуть подробнее? Посмотри, в кого из твоих линий ты резонируешь.</p><button type="button" class="btn" id="famcta">Линия рода</button>';
+  document.getElementById('body').appendChild(cta);
+  document.getElementById('famcta').addEventListener('click', function () {
+    var s = document.getElementById('story');
+    if (s) savedStory = s.value.trim();
+    transitionTo(renderFamily);
+  });
+};
+</script>
+<!-- ===== конец модуля ===== --
 </body>
 </html>
