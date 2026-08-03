@@ -353,24 +353,47 @@ function renderResult(){
 
 renderIntro();
 </script>
-<!-- ===== МОДУЛЬ «ЛИНИЯ РОДА»: вставить перед </body> ===== -->
+<!-- ===== МОДУЛЬ «ЛИНИЯ РОДА» v2: вставить перед </body> ===== -->
 <style>
-  .famgroup{margin:1.1rem 0 .4rem}
-  .glabel{font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;opacity:.75;margin-bottom:.45rem}
+  .glabel{font-size:.95rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin:1rem 0 .4rem}
+  .phr{display:block;width:100%;text-align:left;margin:.45rem 0;padding:.7rem .9rem;font:inherit;font-size:1rem;background:transparent;border:1.5px solid rgba(43,36,29,.35);border-radius:10px;cursor:pointer;transition:border-color .15s,background .15s}
+  .phr:hover{border-color:rgba(43,36,29,.75)}
+  .phr.sel{border-color:#b46a2a;background:rgba(180,106,42,.14);font-weight:600}
+  .phr.sel::before{content:'✓ ';color:#b46a2a;font-weight:800}
+  .phr.dim{opacity:.45}
   .famcheck{display:flex;align-items:center;gap:.5rem;margin:1rem 0 .2rem;font-size:.9rem;opacity:.9}
+  .ctabox{margin:1.1rem 0;padding:.9rem 1rem;border:2px solid #b46a2a;border-radius:12px;background:rgba(180,106,42,.10)}
+  .ctabox .ctatext{font-weight:600;margin-bottom:.6rem}
+  .btn-cta{display:inline-block;background:#b46a2a;color:#fff8ec;border:none;padding:.7rem 1.4rem;font:inherit;font-weight:700;font-size:1.05rem;border-radius:10px;cursor:pointer}
+  .btn-cta:hover{background:#9a5a24}
   .lineage{border-left:3px solid #b46a2a;padding:.6rem .9rem;margin:1rem 0;background:rgba(180,106,42,.06)}
-  .lineage p{margin:.4rem 0}
-  .teaser{font-style:italic;opacity:.85;margin:1.2rem 0 .6rem}
+  .lineage p{margin:.45rem 0}
+  .lineage .direct{font-weight:600;border-left:3px solid #c9a227;padding-left:.5rem}
+  .lineage .lbl svg{vertical-align:-2px;margin-right:4px}
+  .teaserbox{margin:1.2rem 0 .8rem;padding:.9rem 1rem;border-radius:12px;background:#2b241e;color:#f3ead6}
+  .teaserbox p{margin-bottom:.7rem}
+  .btn-gold{display:inline-block;background:#c9a227;color:#241d15;border:none;padding:.6rem 1.2rem;font:inherit;font-weight:700;border-radius:10px;cursor:pointer}
+  .btn-gold:hover{background:#b28f1f}
   .leadinp{width:100%;box-sizing:border-box;margin:.35rem 0;padding:.6rem .7rem;border:1px solid rgba(0,0,0,.25);border-radius:8px;background:rgba(255,255,255,.6);font:inherit}
   .passdate{font-size:.8rem;opacity:.6;margin-bottom:1rem}
+  @page{size:A4;margin:9mm}
   @media print{
-    .noprint,#ticks,.backlink{display:none !important}
-    body{background:#fff !important}
-    .card{box-shadow:none !important;border:none !important}
+    .noprint,#ticks,.backlink{display:none!important}
+    body{background:#fff!important}
+    .card{box-shadow:none!important;border:none!important;padding:2mm!important}
+    h1{font-size:20px!important;margin:.3rem 0!important}
+    .desc,.dir,.lineage p,.teaserbox p{font-size:11px!important;line-height:1.35!important;margin:.25rem 0!important}
+    .eyebrow,.passdate,.qlabel{font-size:9px!important}
+    .badge svg{width:24px!important;height:24px!important}
+    .stamp svg{width:18px!important;height:18px!important}
+    .barrow-top{font-size:10px!important}
+    .barrow-top .lbl svg{width:11px!important;height:11px!important}
+    .track{height:5px!important}
+    .lineage,.teaserbox,.bars{break-inside:avoid}
   }
 </style>
 <script>
-var LEAD_CONTACT = 'trulov@bk.ru';
+var LEAD_URL = 'https://script.google.com/macros/s/AKfycbyg1PbB4oKLQ1bw8-o_NT69kSczTCni60liBDgRrjA35v42p_QyHu4IoMZiCxpO4mn7/exec';
 
 var PHR_M = { teach:'Объяснял, учил, как всё устроено', care:'Грел, собирал всех вокруг, заботился', protect:'Заступался за своих, защищал', heal:'Чинил, лечил, восстанавливал', create:'Придумывал, мастерил, изобретал', guide:'Планировал, вёл, организовывал' };
 var PHR_F = { teach:'Объясняла, учила, как всё устроено', care:'Грела, собирала всех вокруг, заботилась', protect:'Заступалась за своих, защищала', heal:'Чинила, лечила, восстанавливала', create:'Придумывала, мастерила, изобретала', guide:'Планировала, вела, организовывала' };
@@ -393,16 +416,17 @@ function renderFamily() {
     h += '<div class="famgroup"><div class="glabel">' + (p === 'dad' ? 'Папа' : 'Мама') + '</div>';
     KEYS.forEach(function (k) {
       var on = fam[p].indexOf(k) >= 0;
-      h += '<button type="button" class="opt" data-p="' + p + '" data-k="' + k + '"' + (on ? ' style="outline:2px solid currentColor"' : '') + '>' + (p === 'dad' ? PHR_M[k] : PHR_F[k]) + '</button>';
+      var dim = !on && fam[p].length >= 2;
+      h += '<button type="button" class="phr' + (on ? ' sel' : '') + (dim ? ' dim' : '') + '" data-p="' + p + '" data-k="' + k + '">' + (p === 'dad' ? PHR_M[k] : PHR_F[k]) + '</button>';
     });
     h += '</div>';
   });
   h += '<label class="famcheck noprint"><input type="checkbox" id="unk"> Не помню / не знаю</label>';
-  h += '<div class="actions noprint"><button type="button" class="btn" id="famgo" ' + (fam.dad.length && fam.mom.length ? '' : 'disabled') + '>Собрать Паспорт</button></div>';
+  h += '<div class="actions noprint"><button type="button" class="btn" id="famgo" ' + (fam.dad.length && fam.mom.length ? '' : 'disabled') + '>Собрать мою страницу</button></div>';
   document.getElementById('body').innerHTML = h;
   document.getElementById('fback').addEventListener('click', function () { transitionTo(renderResult); });
   document.getElementById('unk').addEventListener('change', function () { if (this.checked) transitionTo(renderLead); });
-  document.querySelectorAll('.famgroup .opt').forEach(function (b) {
+  document.querySelectorAll('.famgroup .phr').forEach(function (b) {
     b.addEventListener('click', function () { famToggle(b.getAttribute('data-p'), b.getAttribute('data-k')); renderFamily(); });
   });
   document.getElementById('famgo').addEventListener('click', function () { transitionTo(renderPassport); });
@@ -421,11 +445,17 @@ function renderLead() {
   document.getElementById('body').innerHTML = h;
   document.getElementById('lback').addEventListener('click', function () { transitionTo(renderFamily); });
   document.getElementById('lsend').addEventListener('click', function () {
+    var n = document.getElementById('lname').value.trim();
     var c = document.getElementById('lcontact').value.trim();
     var ok = document.getElementById('lconsent').checked;
     if (!c || !ok) { alert('Нужны контакт и согласие на обработку данных.'); return; }
-    var body = 'Заявка DeepSearch рода\nИмя: ' + document.getElementById('lname').value.trim() + '\nКонтакт: ' + c;
-    location.href = 'mailto:' + LEAD_CONTACT + '?subject=' + encodeURIComponent('DeepSearch рода') + '&body=' + encodeURIComponent(body);
+    if (!LEAD_URL) { alert('Приём заявок ещё настраивается — загляни чуть позже!'); return; }
+    fetch(LEAD_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ name: n, contact: c, ts: new Date().toISOString() }) })
+      .then(function () {
+        document.getElementById('body').innerHTML = '<h1>Заявка принята!</h1><p class="desc">Мы напишем тебе, когда DeepSearch рода откроется. А твоя страница — уже у тебя.</p><div class="actions"><button type="button" class="btn" id="done">Вернуться</button></div>';
+        document.getElementById('done').addEventListener('click', function () { transitionTo(renderPassport); });
+      })
+      .catch(function () { alert('Не удалось отправить заявку. Попробуй ещё раз позже.'); });
   });
 }
 
@@ -438,7 +468,7 @@ function renderPassport() {
   var res = isRuler ? RULER : (isCombo ? COMBO[comboKey(top, second)] : AR[top]);
   var userKeys = isRuler ? [] : (isCombo ? [top, second] : [top]);
 
-  var h = '<div class="eyebrow">Паспорт призвания</div>';
+  var h = '<div class="eyebrow">Твоя страница</div>';
   h += '<div class="passdate">' + new Date().toLocaleDateString('ru-RU') + '</div>';
   h += isRuler ? '<div class="badge rule">' + svg('rule', 30) + '</div>'
     : (isCombo ? '<div class="badge combo"><div class="stamp a">' + svg(top, 22) + '</div><div class="stamp b">' + svg(second, 22) + '</div></div>'
@@ -447,22 +477,22 @@ function renderPassport() {
   h += '<p class="desc">' + res.desc + '</p>';
   h += '<p class="dir">куда это ведёт — ' + res.dir + '</p>';
 
-  var dadL = fam.dad.map(function (k) { return AR[k].label; }).join(' + ');
-  var momL = fam.mom.map(function (k) { return AR[k].label; }).join(' + ');
+  var dadL = fam.dad.map(function (k) { return '<span class="lbl">' + svg(k, 15) + AR[k].label + '</span>'; }).join(' + ');
+  var momL = fam.mom.map(function (k) { return '<span class="lbl">' + svg(k, 15) + AR[k].label + '</span>'; }).join(' + ');
   var dadP = fam.dad.map(function (k) { return LINE_TEXT[k]; }).join(' и ');
   var momP = fam.mom.map(function (k) { return LINE_TEXT[k]; }).join(' и ');
 
   h += '<div class="lineage"><p class="qlabel">Линия рода</p>';
-  h += '<p>Линия папы — ' + dadL + '. Линия мамы — ' + momL + '.</p>';
+  h += '<p><strong>Папа:</strong> ' + dadL + ' &nbsp;·&nbsp; <strong>Мама:</strong> ' + momL + '</p>';
   if (isRuler) {
     h += '<p>Ты держишь пространство для всех шести линий. В твоём роде это читается так: ' + dadP + ' и ' + momP + ' — они не конкурировали, они дали друг другу место. Именно из таких домов получаются люди, которые строят пространства для других.</p>';
   } else {
     ['dad','mom'].forEach(function (p) {
       fam[p].forEach(function (k) {
-        if (userKeys.indexOf(k) >= 0) h += '<p>Линия «' + AR[k].label + '» передана напрямую: ' + (p === 'dad' ? 'папа' : 'мама') + ' тоже ' + AR[k].label + ' — ' + LINE_TEXT[k] + ' у тебя в крови.</p>';
+        if (userKeys.indexOf(k) >= 0) h += '<p class="direct">Линия «' + AR[k].label + '» передана напрямую: ' + (p === 'dad' ? 'папа' : 'мама') + ' тоже ' + AR[k].label + ' — ' + LINE_TEXT[k] + ' у тебя в крови.</p>';
       });
     });
-    h += '<p>Твой ' + res.label + ' — синтез двух линий: от папы — ' + dadP + ', от мамы — ' + momP + '.</p>';
+    h += '<p>Твой <strong>' + res.label + '</strong> — синтез двух линий: от папы — ' + dadP + ', от мамы — ' + momP + '.</p>';
   }
   h += '</div>';
 
@@ -475,8 +505,7 @@ function renderPassport() {
   });
   h += '</div>';
 
-  h += '<p class="teaser">Твой архетип ясен. А что стоит за твоей фамилией — откуда она и какие истории хранит? Об этом расскажет DeepSearch рода.</p>';
-  h += '<div class="actions noprint"><button type="button" class="btn" id="teaz">DeepSearch рода</button></div>';
+  h += '<div class="teaserbox"><p>Теперь понятно, что ты чувствуешь. А вот что стоит за твоей фамилией — откуда она и какие истории хранит — расскажет DeepSearch рода.</p><button type="button" class="btn-gold noprint" id="teaz">Узнать о роде</button></div>';
   h += '<div class="actions noprint"><button type="button" class="btn" id="ppdf">Сохранить в PDF</button></div>';
   h += '<button type="button" class="backlink noprint" id="pback">← назад</button>';
   document.getElementById('body').innerHTML = h;
@@ -485,15 +514,23 @@ function renderPassport() {
   document.getElementById('pback').addEventListener('click', function () { transitionTo(renderResult); });
 }
 
-// мягкий крючок: добавляем CTA на экран результата, не трогая твой код
+// крючок: опыт — вниз, яркий CTA — сразу после результата
 var _rr = renderResult;
 renderResult = function () {
   _rr();
+  var body = document.getElementById('body');
+  var st = document.getElementById('story');
+  if (st) {
+    var nodes = [st.previousElementSibling ? st.previousElementSibling.previousElementSibling : null,
+                 st.previousElementSibling, st, st.nextElementSibling,
+                 st.nextElementSibling ? st.nextElementSibling.nextElementSibling : null];
+    nodes.forEach(function (n) { if (n) body.appendChild(n); });
+  }
   var cta = document.createElement('div');
-  cta.className = 'actions noprint';
-  cta.style.marginTop = '1.2rem';
-  cta.innerHTML = '<p class="desc" style="margin-bottom:.6rem">Хочешь узнать о себе чуть подробнее? Посмотри, в кого из твоих линий ты резонируешь.</p><button type="button" class="btn" id="famcta">Линия рода</button>';
-  document.getElementById('body').appendChild(cta);
+  cta.className = 'ctabox noprint';
+  cta.innerHTML = '<div class="ctatext">Хочешь узнать о себе чуть подробнее? Посмотри, в кого из твоих линий ты резонируешь.</div><button type="button" class="btn-cta" id="famcta">Линия рода</button>';
+  var dirEl = body.querySelector('.dir');
+  if (dirEl) dirEl.insertAdjacentElement('afterend', cta);
   document.getElementById('famcta').addEventListener('click', function () {
     var s = document.getElementById('story');
     if (s) savedStory = s.value.trim();
@@ -501,6 +538,6 @@ renderResult = function () {
   });
 };
 </script>
-<!-- ===== конец модуля ===== --
+<!-- ===== конец модуля v2 ===== -->
 </body>
 </html>
